@@ -1,15 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import './App.css';
-import VoiceChat from './components/VoiceChat';
+import ECommerceSite from './components/ECommerceSite';
+import VoiceAssistant from './components/VoiceAssistant';
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <h1>🎙️ Sesli Destek Botu</h1>
-        <p>Mikrofona tıklayıp konuşun veya yazarak soru sorun</p>
-      </header>
-      <VoiceChat />
+      <ECommerceSite />
+      <VoiceAssistant />
+      
+      <style>{`
+        @keyframes pulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.5; transform: scale(1.2); }
+        }
+      `}</style>
     </div>
   );
 }
