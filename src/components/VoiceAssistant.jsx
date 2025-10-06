@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import { useSpeechRecognition } from '../hooks/useSpeechRecognition';
-import { useTextToSpeech } from '../hooks/useTextToSpeech';
+import { useOpenAITTS } from '../hooks/useOpenAITTS';
 import { useAudioLevel } from '../hooks/useAudioLevel';
 import ChatWindow from './ChatWindow';
 
@@ -13,7 +13,7 @@ export default function VoiceAssistant() {
   const chatEndRef = useRef(null);
 
   const { isListening, transcript, startListening } = useSpeechRecognition();
-  const { isSpeaking, speak } = useTextToSpeech();
+  const { isSpeaking, speak } = useOpenAITTS();
   const audioLevel = useAudioLevel(isListening);
 
   useEffect(() => {
@@ -27,7 +27,8 @@ export default function VoiceAssistant() {
 
     try {
       const response = await axios.post('http://localhost:5000/api/chat', {
-        message: text
+        message: text,
+        provider: 'openai'
       });
 
       const botResponse = response.data.botResponse;
@@ -38,7 +39,8 @@ export default function VoiceAssistant() {
         { type: 'bot', text: botResponse }
       ]);
       
-      speak(botResponse);
+      await speak(botResponse, 'nova');
+      
     } catch (error) {
       console.error('Hata:', error);
       const errorMsg = 'Üzgünüm, bir hata oluştu. Lütfen tekrar deneyin.';
@@ -46,7 +48,7 @@ export default function VoiceAssistant() {
         { type: 'user', text: text },
         { type: 'bot', text: errorMsg }
       ]);
-      speak(errorMsg);
+      await speak(errorMsg, 'nova');
     }
   };
 
@@ -58,7 +60,8 @@ export default function VoiceAssistant() {
 
     try {
       const response = await axios.post('http://localhost:5000/api/chat', {
-        message: userMessage
+        message: userMessage,
+        provider: 'openai'
       });
 
       const botResponse = response.data.botResponse;
@@ -68,13 +71,16 @@ export default function VoiceAssistant() {
         { type: 'bot', text: botResponse }
       ]);
       
-      speak(botResponse);
+      await speak(botResponse, 'nova');
+      
     } catch (error) {
       console.error('Hata:', error);
+      const errorMsg = 'Üzgünüm, bir hata oluştu. Lütfen tekrar deneyin.';
       setChatHistory(prev => [...prev, 
         { type: 'user', text: userMessage },
-        { type: 'bot', text: 'Üzgünüm, bir hata oluştu. Lütfen tekrar deneyin.' }
+        { type: 'bot', text: errorMsg }
       ]);
+      await speak(errorMsg, 'nova');
     }
   };
 
